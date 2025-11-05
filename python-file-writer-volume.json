@@ -1,0 +1,52 @@
+{
+  "properties": {
+    "owner": "tester",
+    "run_strategy": "sequential"
+  },
+  "workflow": {
+    "id": "python-file-writer-volume",
+    "name": "Python File Writer with Volume",
+    "description": "A workflow that writes to a file using volume mount",
+    "steps": [
+      {
+        "step": {
+          "id": "write-file",
+          "type": "kubernetes",
+          "transition": {},
+          "retry_policy": {
+            "error_retry_limit": 0
+          },
+          "params": {
+            "kubernetes": {
+              "value": {
+                "image": {
+                  "value": "python:3.9-slim",
+                  "type": "STRING"
+                },
+                "entrypoint": {
+                  "value": "python -c \"import os; from datetime import datetime; timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S'); message = f'Hello from Maestro!\\nScript executed at: {timestamp}\\nThis file was created by a Python script in a Maestro workflow.\\nWorkflow execution completed successfully!\\n'; print(message); with open('/output/maestro_output.txt', 'w') as f: f.write(message); print('File written to /output/maestro_output.txt')\"",
+                  "type": "STRING"
+                },
+                "volumes": [
+                  {
+                    "name": "output-volume",
+                    "hostPath": {
+                      "path": "/tmp/maestro-output"
+                    }
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "output-volume",
+                    "mountPath": "/output"
+                  }
+                ]
+              },
+              "type": "MAP"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

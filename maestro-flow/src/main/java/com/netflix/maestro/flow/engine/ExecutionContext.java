@@ -13,6 +13,7 @@ import com.netflix.maestro.flow.properties.FlowEngineProperties;
 import com.netflix.maestro.flow.runtime.ExecutionPreparer;
 import com.netflix.maestro.flow.runtime.FinalFlowStatusCallback;
 import com.netflix.maestro.flow.runtime.FlowTask;
+import com.netflix.maestro.flow.runtime.TaskWebhookHandler;
 import com.netflix.maestro.flow.utils.ExecutionHelper;
 import com.netflix.maestro.metrics.MaestroMetrics;
 import java.util.List;
@@ -47,6 +48,7 @@ public class ExecutionContext {
   private final ExecutionPreparer executionPreparer;
   private final MaestroFlowDao flowDao;
   private final ExecutorService internalWorkers; // avoid virtual thread running business logic
+  private final TaskWebhookHandler taskWebhookHandler;
 
   @Getter private final FlowEngineProperties properties;
   @Getter private final MaestroMetrics metrics;
@@ -58,7 +60,8 @@ public class ExecutionContext {
       ExecutionPreparer executionPreparer,
       MaestroFlowDao flowDao,
       FlowEngineProperties properties,
-      MaestroMetrics metrics) {
+      MaestroMetrics metrics,
+      TaskWebhookHandler taskWebhookHandler) {
     this.flowTaskMap = flowTaskMap;
     this.finalCallback = finalCallback;
     this.executionPreparer = executionPreparer;
@@ -66,6 +69,7 @@ public class ExecutionContext {
     this.internalWorkers = Executors.newFixedThreadPool(properties.getInternalWorkerNumber());
     this.properties = properties;
     this.metrics = metrics;
+    this.taskWebhookHandler = taskWebhookHandler;
   }
 
   /** Run an actor. */
@@ -200,11 +204,26 @@ public class ExecutionContext {
 
   /** run the repeated execute logic of a task. */
   public boolean execute(Flow flow, Task task) {
-    return runInternally(
-        () -> flowTaskMap.get(task.getTaskType()).execute(flow, task),
-        flow,
-        task.referenceTaskName(),
-        "execute");
+    Task.Status previousStatus = task.getStatus();
+    boolean changed =
+        runInternally(
+            () -> flowTaskMap.get(task.getTaskType()).execute(flow, task),
+            flow,
+            task.referenceTaskName(),
+            "execute");
+    // Trigger webhook if task status changed to terminal
+    if (changed
+        && taskWebhookHandler != null
+        && task.getStatus().isTerminal()
+        && (!task.getStatus().equals(previousStatus) || previousStatus == null)) {
+      try {
+        taskWebhookHandler.onTaskCompleted(flow, task);
+      } catch (Exception e) {
+        LOG.warn(
+            "Failed to trigger webhook for task {}: {}", task.referenceTaskName(), e.getMessage());
+      }
+    }
+    return changed;
   }
 
   /** Cancel the task. */

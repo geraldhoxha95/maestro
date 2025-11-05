@@ -20,6 +20,8 @@ import com.netflix.maestro.flow.engine.FlowExecutor;
 import com.netflix.maestro.flow.runtime.ExecutionPreparer;
 import com.netflix.maestro.flow.runtime.FinalFlowStatusCallback;
 import com.netflix.maestro.flow.runtime.FlowOperation;
+import com.netflix.maestro.flow.runtime.HttpTaskWebhookHandler;
+import com.netflix.maestro.flow.runtime.TaskWebhookHandler;
 import com.netflix.maestro.metrics.MaestroMetrics;
 import com.netflix.maestro.models.Constants;
 import com.netflix.maestro.models.definition.StepType;
@@ -115,6 +117,24 @@ public class MaestroFlowConfiguration {
   }
 
   @Bean
+  public TaskWebhookHandler taskWebhookHandler(
+      ObjectMapper objectMapper, MaestroEngineProperties properties, MaestroMetrics metrics) {
+    if (properties.isTaskWebhookEnabled()
+        && properties.getTaskWebhookUrl() != null
+        && !properties.getTaskWebhookUrl().isBlank()) {
+      LOG.info("Creating task webhook handler with URL: {}", properties.getTaskWebhookUrl());
+      return new HttpTaskWebhookHandler(
+          objectMapper,
+          metrics,
+          properties.getTaskWebhookUrl(),
+          properties.getTaskWebhookTimeout());
+    } else {
+      LOG.info("Task webhook is disabled or no URL configured");
+      return null;
+    }
+  }
+
+  @Bean
   public ExecutionContext executionContext(
       ExecutionPreparer executionPreparer,
       MaestroFlowDao flowDao,
@@ -125,7 +145,8 @@ public class MaestroFlowConfiguration {
       MaestroTagPermitTask tagPermitTask,
       FinalFlowStatusCallback finalCallback,
       MaestroEngineProperties properties,
-      MaestroMetrics metrics) {
+      MaestroMetrics metrics,
+      TaskWebhookHandler taskWebhookHandler) {
     LOG.info("Creating maestro executionContext within Spring boot...");
     return new ExecutionContext(
         Map.of(
@@ -143,6 +164,7 @@ public class MaestroFlowConfiguration {
         executionPreparer,
         flowDao,
         properties,
-        metrics);
+        metrics,
+        taskWebhookHandler);
   }
 }

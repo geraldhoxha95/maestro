@@ -1,6 +1,7 @@
 package com.netflix.maestro.flow.properties;
 
 import com.netflix.maestro.database.DatabaseConfiguration;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,6 +50,19 @@ public class FlowEngineProperties implements DatabaseConfiguration {
 
   private static final String INTERNAL_WORKER_NUMBER_PROPERTY_NAME = "internal.worker.num";
   private static final int INTERNAL_WORKER_NUMBER_DEFAULT_VALUE = 10;
+
+  private static final String TASK_WEBHOOK_ENABLED_PROPERTY_NAME = "task.webhook.enabled";
+  private static final boolean TASK_WEBHOOK_ENABLED_DEFAULT_VALUE = true;
+
+  private static final String TASK_WEBHOOK_URL_PROPERTY_NAME = "task.webhook.url";
+  private static final String TASK_WEBHOOK_URL_DEFAULT_VALUE = "http://localhost:3001/webhook";
+
+  private static final String TASK_WEBHOOK_TIMEOUT_PROPERTY_NAME = "task.webhook.timeout.millis";
+  private static final long TASK_WEBHOOK_TIMEOUT_DEFAULT_VALUE = TimeUnit.SECONDS.toMillis(30);
+
+  private static final String TASK_WEBHOOK_ONLY_TERMINAL_PROPERTY_NAME =
+      "task.webhook.only.terminal";
+  private static final boolean TASK_WEBHOOK_ONLY_TERMINAL_DEFAULT_VALUE = true;
 
   public long getMaxGroupNum() {
     return getLongProperty(MAX_GROUP_NUM_PROPERTY_NAME, MAX_GROUP_NUM_DEFAULT_VALUE);
@@ -103,5 +117,24 @@ public class FlowEngineProperties implements DatabaseConfiguration {
   public int getInternalWorkerNumber() {
     return getIntProperty(
         INTERNAL_WORKER_NUMBER_PROPERTY_NAME, INTERNAL_WORKER_NUMBER_DEFAULT_VALUE);
+  }
+
+  public boolean isTaskWebhookEnabled() {
+    return getBooleanProperty(
+        TASK_WEBHOOK_ENABLED_PROPERTY_NAME, TASK_WEBHOOK_ENABLED_DEFAULT_VALUE);
+  }
+
+  public String getTaskWebhookUrl() {
+    return getProperty(TASK_WEBHOOK_URL_PROPERTY_NAME, TASK_WEBHOOK_URL_DEFAULT_VALUE);
+  }
+
+  public Duration getTaskWebhookTimeout() {
+    return Duration.ofMillis(
+        getLongProperty(TASK_WEBHOOK_TIMEOUT_PROPERTY_NAME, TASK_WEBHOOK_TIMEOUT_DEFAULT_VALUE));
+  }
+
+  public boolean isTaskWebhookOnlyTerminal() {
+    return getBooleanProperty(
+        TASK_WEBHOOK_ONLY_TERMINAL_PROPERTY_NAME, TASK_WEBHOOK_ONLY_TERMINAL_DEFAULT_VALUE);
   }
 }

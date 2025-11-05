@@ -66,6 +66,18 @@ public class Properties {
 
   @Valid @TagListConstraint @Nullable private TagList tags;
 
+  /** Webhook URL for task completion notifications. */
+  @Nullable private String taskWebhookUrl;
+
+  /** Whether task webhook notifications are enabled. */
+  private Boolean taskWebhookEnabled;
+
+  /** HTTP timeout for webhook requests in milliseconds. */
+  private Long taskWebhookTimeout;
+
+  /** Whether to send webhooks for all task statuses or only terminal ones. */
+  private Boolean taskWebhookOnlyTerminal;
+
   /** merge the properties changes into current properties-snapshot. */
   public static Properties merge(@NotNull Properties change, Properties current) {
     Checks.notNull(change, "cannot merge a null change with the current properties");
@@ -95,6 +107,16 @@ public class Properties {
     newSnapshot.setDescription(
         change.description != null ? change.description : current.description);
     newSnapshot.setTags(change.tags != null ? change.tags : current.tags);
+    newSnapshot.setTaskWebhookUrl(
+        change.taskWebhookUrl != null ? change.taskWebhookUrl : current.taskWebhookUrl);
+    newSnapshot.setTaskWebhookEnabled(
+        change.taskWebhookEnabled != null ? change.taskWebhookEnabled : current.taskWebhookEnabled);
+    newSnapshot.setTaskWebhookTimeout(
+        change.taskWebhookTimeout != null ? change.taskWebhookTimeout : current.taskWebhookTimeout);
+    newSnapshot.setTaskWebhookOnlyTerminal(
+        change.taskWebhookOnlyTerminal != null
+            ? change.taskWebhookOnlyTerminal
+            : current.taskWebhookOnlyTerminal);
     return newSnapshot;
   }
 }

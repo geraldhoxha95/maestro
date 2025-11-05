@@ -1,0 +1,49 @@
+{
+  "properties": {
+    "owner": "tester",
+    "run_strategy": "sequential"
+  },
+  "workflow": {
+    "id": "python-final-test",
+    "name": "Python Final Test",
+    "description": "Final Python workflow test",
+    "steps": [
+      {
+        "step": {
+          "id": "job.1",
+          "type": "NoOp",
+          "transition": {
+            "successors": {
+              "job.2": "true"
+            }
+          }
+        }
+      },
+      {
+        "step": {
+          "id": "job.2",
+          "type": "kubernetes",
+          "transition": {},
+          "retry_policy": {
+            "error_retry_limit": 0
+          },
+          "params": {
+            "kubernetes": {
+              "value": {
+                "image": {
+                  "value": "python:3.9-slim",
+                  "type": "STRING"
+                },
+                "entrypoint": {
+                  "value": "python -c \"print('Hello from Maestro workflow!')\"",
+                  "type": "STRING"
+                }
+              },
+              "type": "MAP"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -35,6 +35,7 @@ import com.netflix.maestro.flow.properties.FlowEngineProperties;
 import com.netflix.maestro.flow.runtime.ExecutionPreparer;
 import com.netflix.maestro.flow.runtime.FinalFlowStatusCallback;
 import com.netflix.maestro.flow.runtime.FlowTask;
+import com.netflix.maestro.flow.runtime.TaskWebhookHandler;
 import com.netflix.maestro.metrics.MaestroMetrics;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class ExecutionContextTest extends FlowBaseTest {
   @Mock private MaestroFlowDao flowDao;
   @Mock private FlowEngineProperties properties;
   @Mock private MaestroMetrics metrics;
+  @Mock private TaskWebhookHandler taskWebhookHandler;
 
   private ExecutionContext context;
   private Flow flow;
@@ -66,7 +68,8 @@ public class ExecutionContextTest extends FlowBaseTest {
             executionPreparer,
             flowDao,
             properties,
-            metrics);
+            metrics,
+            taskWebhookHandler);
     flow = createFlow();
     group = new FlowGroup(1, 1, "testAddress", 12345);
   }

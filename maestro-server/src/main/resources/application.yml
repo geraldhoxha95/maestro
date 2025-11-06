@@ -59,8 +59,8 @@ engine:
     workflow-database-rewrite-batched-inserts: true
     workflow-database-login-timeout-seconds: 5
     workflow-database-socket-timeout-seconds: 50
-    jdbc-username: postgres
-    jdbc-url: "jdbc:postgresql://localhost:5432/maestro"
+    jdbc-username: root
+    jdbc-url: "jdbc:tc:postgresql:17:///maestro_local"
     db-type: postgres
     flyway-enabled: true
     workflow-database-client-name: maestro-local

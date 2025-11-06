@@ -55,7 +55,7 @@ public class FlowEngineProperties implements DatabaseConfiguration {
   private static final boolean TASK_WEBHOOK_ENABLED_DEFAULT_VALUE = true;
 
   private static final String TASK_WEBHOOK_URL_PROPERTY_NAME = "task.webhook.url";
-  private static final String TASK_WEBHOOK_URL_DEFAULT_VALUE = "http://localhost:3001/webhook";
+  private static final String TASK_WEBHOOK_URL_DEFAULT_VALUE = "";
 
   private static final String TASK_WEBHOOK_TIMEOUT_PROPERTY_NAME = "task.webhook.timeout.millis";
   private static final long TASK_WEBHOOK_TIMEOUT_DEFAULT_VALUE = TimeUnit.SECONDS.toMillis(30);
